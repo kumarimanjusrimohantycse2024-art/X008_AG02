@@ -2,6 +2,8 @@
 
 V0.2 uses PostgreSQL, SQLAlchemy 2.x, Alembic, and the `pgvector/pgvector:pg16` image. The Compose service is published on host port `5434` because port `5432` is used by another local PostgreSQL service.
 
+V0.5 extends `applications` with `ingestion_status` and `documents` with `storage_path`, `file_size`, and `sha256`. Migration `e116ecc0f691_add_v0_5_ingestion_metadata` adds these fields without changing the existing V0.2 entities. Files remain outside PostgreSQL and embeddings remain null.
+
 ## Entity model
 
 ```text

@@ -16,7 +16,15 @@ V0.4 endpoints:
 - `POST /api/jobs/{job_id}/requirements/analyze` returns validated draft requirements and does not persist them.
 - `PUT /api/jobs/{job_id}/requirements` replaces finalized requirements for an authorized job and marks it `READY`.
 
-Requirement analysis validates structured output before returning it; raw model output is never written to PostgreSQL. The V0.4 API adds job and requirement management. Candidate ingestion, document processing, and candidate evaluation endpoints remain intentionally absent.
+Requirement analysis validates structured output before returning it; raw model output is never written to PostgreSQL. The V0.4 API adds job and requirement management. V0.5 adds:
+
+- `POST /api/jobs/{job_id}/applications` for multipart candidate fields, required PDF/DOCX resume, and optional PDF/DOCX cover letter.
+- `GET /api/jobs/{job_id}/applications` for authorized application summaries.
+- `GET /api/applications/{application_id}` for authorized candidate/application and document metadata.
+- `GET /api/applications/{application_id}/documents` and `/documents/{document_id}` for authorized extracted document content.
+- `GET /api/applications/{application_id}/chunks` for authorized deterministic source chunks.
+
+All application/document/chunk endpoints authorize through the parent job. Unsupported, malformed, oversized, duplicate, and empty-text uploads return safe `422` errors. Raw filesystem paths are not exposed.
 
 Authentication failures return `401` with a generic message. Authenticated users lacking a required role receive `403`. The frontend is not a security boundary.
 

@@ -1,6 +1,6 @@
 # TalentScreen
 
-TalentScreen is an evidence-aware talent-acquisition screening foundation. This repository is **V0.4: Job & Requirement Management**. V0.1 established the foundation, V0.2 added the persistent domain model, V0.3 added secure authentication/RBAC, and V0.4 adds recruiter-owned job and requirement workflows without implementing candidate screening.
+TalentScreen is an evidence-aware talent-acquisition screening foundation. This repository is **V0.5: Application Ingestion & Source Processing**. V0.1 established the foundation, V0.2 added the persistent domain model, V0.3 added secure authentication/RBAC, V0.4 added job/requirement workflows, and V0.5 adds recruiter-owned application ingestion without implementing AI evidence intelligence.
 
 ## Architecture
 
@@ -9,6 +9,7 @@ TalentScreen is an evidence-aware talent-acquisition screening foundation. This 
 - Database: PostgreSQL with pgvector, SQLAlchemy 2.x, and Alembic
 - Security: PBKDF2 password hashing, expiring JWT bearer tokens, ADMIN/RECRUITER roles, and server-side ownership checks
 - Product workflow: recruiter-owned job drafts, validated requirement analysis, editable review, and READY lifecycle transition
+- Application workflow: PDF/DOCX upload, deterministic parsing, source-aware chunks, and application ownership checks
 
 ## Prerequisites
 
@@ -95,6 +96,7 @@ Pop-Location
 - Database health: http://localhost:8000/api/health/database
 - Login: http://localhost:3000/login
 - Jobs: http://localhost:3000/jobs
+- Application upload: http://localhost:3000/jobs/<job-id>/applications/new
 
 The frontend status indicator calls the backend health endpoint and displays checking, connected, or unavailable. Configure a different backend with `NEXT_PUBLIC_BACKEND_URL` when needed.
 
@@ -118,6 +120,7 @@ docker-compose.yml       PostgreSQL + pgvector-ready development database
 
 - V0.3: authentication, authorization, and resource ownership
 - V0.4: job creation, requirement extraction/review, finalized requirements, and job lifecycle
+- V0.5: candidate/application ingestion, PDF/DOCX parsing, deterministic chunks, and source traceability
 - Later: document processing, claim extraction, terminology resolution, evidence verification, ranking, and pool-gap analysis
 
 Candidate upload, parsing, embeddings, LLM screening, ranking, Redis, Kafka, Kubernetes, and production deployment are intentionally out of scope for V0.1.

@@ -66,6 +66,13 @@ class ScreeningStatus(StrEnum):
     FAILED = "FAILED"
 
 
+class IngestionStatus(StrEnum):
+    NOT_STARTED = "NOT_STARTED"
+    PROCESSING = "PROCESSING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+
+
 class DocumentType(StrEnum):
     RESUME = "RESUME"
     COVER_LETTER = "COVER_LETTER"
@@ -221,6 +228,7 @@ class Application(Base):
         Index("ix_applications_job_id", "job_id"),
         Index("ix_applications_candidate_id", "candidate_id"),
         Index("ix_applications_screening_status", "screening_status"),
+        Index("ix_applications_ingestion_status", "ingestion_status"),
     )
 
     id: Mapped[uuid.UUID] = uuid_column()
@@ -229,6 +237,7 @@ class Application(Base):
     status: Mapped[ApplicationStatus] = mapped_column(enum_type(ApplicationStatus), nullable=False, default=ApplicationStatus.RECEIVED)
     submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     screening_status: Mapped[ScreeningStatus] = mapped_column(enum_type(ScreeningStatus), nullable=False, default=ScreeningStatus.NOT_STARTED)
+    ingestion_status: Mapped[IngestionStatus] = mapped_column(enum_type(IngestionStatus), nullable=False, default=IngestionStatus.NOT_STARTED)
     created_at: Mapped[datetime] = timestamps()["created_at"]
     updated_at: Mapped[datetime] = timestamps()["updated_at"]
 
@@ -251,6 +260,9 @@ class Document(Base):
     file_name: Mapped[str] = mapped_column(String(255), nullable=False)
     mime_type: Mapped[str] = mapped_column(String(150), nullable=False)
     raw_text: Mapped[str | None] = mapped_column(Text)
+    storage_path: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    file_size: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    sha256: Mapped[str] = mapped_column(String(64), nullable=False, default="")
     created_at: Mapped[datetime] = timestamps()["created_at"]
     updated_at: Mapped[datetime] = timestamps()["updated_at"]
 

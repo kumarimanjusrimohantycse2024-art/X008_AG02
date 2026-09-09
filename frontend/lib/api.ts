@@ -19,6 +19,9 @@ export type RequirementPriority = "REQUIRED" | "PREFERRED";
 export type Job = { id: string; title: string; department: string | null; description: string; status: JobStatus; created_by: string; created_at: string; required_count: number; preferred_count: number };
 export type Requirement = { id?: string; name: string; description: string; priority: RequirementPriority; minimum_years: number | null; weight: number; aliases: string[]; evidence_expectations: Record<string, unknown> };
 export type RequirementAnalysis = { requirements: Requirement[]; source: string };
+export type Application = { id: string; job_id: string; candidate_id: string; candidate_name: string; candidate_email: string | null; candidate_phone: string | null; status: string; ingestion_status: string; screening_status: string; submitted_at: string | null; created_at: string; document_count: number; chunk_count: number };
+export type Document = { id: string; document_type: "RESUME" | "COVER_LETTER" | "OTHER"; file_name: string; mime_type: string; file_size: number; sha256: string; raw_text: string | null; created_at: string; chunk_count: number };
+export type Chunk = { id: string; document_id: string; chunk_index: number; section: string | null; text: string; page_number: number | null; created_at: string };
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
@@ -79,4 +82,26 @@ export async function analyzeRequirements(token: string, jobId: string): Promise
 
 export async function saveRequirements(token: string, jobId: string, requirements: Requirement[]): Promise<Requirement[]> {
   return parseResponse<Requirement[]>(await authenticatedFetch(`/api/jobs/${jobId}/requirements`, token, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ requirements }) }));
+}
+
+export async function createApplication(token: string, jobId: string, fields: { candidateName: string; candidateEmail: string; candidatePhone: string; resume: File; coverLetter?: File }): Promise<Application & { documents: Document[] }> {
+  const body = new FormData();
+  body.append("candidate_name", fields.candidateName);
+  body.append("candidate_email", fields.candidateEmail);
+  body.append("candidate_phone", fields.candidatePhone);
+  body.append("resume", fields.resume);
+  if (fields.coverLetter) body.append("cover_letter", fields.coverLetter);
+  return parseResponse<Application & { documents: Document[] }>(await authenticatedFetch(`/api/jobs/${jobId}/applications`, token, { method: "POST", body }));
+}
+
+export async function getApplications(token: string, jobId: string): Promise<Application[]> {
+  return parseResponse<Application[]>(await authenticatedFetch(`/api/jobs/${jobId}/applications`, token));
+}
+
+export async function getApplication(token: string, applicationId: string): Promise<Application & { documents: Document[] }> {
+  return parseResponse<Application & { documents: Document[] }>(await authenticatedFetch(`/api/applications/${applicationId}`, token));
+}
+
+export async function getApplicationChunks(token: string, applicationId: string): Promise<Chunk[]> {
+  return parseResponse<Chunk[]>(await authenticatedFetch(`/api/applications/${applicationId}/chunks`, token));
 }

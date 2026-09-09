@@ -12,6 +12,7 @@ venv/
 coverage/
 dist/
 build/
+storage/uploads/
 *.egg-info/
 *.tsbuildinfo
 .vscode/

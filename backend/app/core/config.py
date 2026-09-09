@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_name: str = "TalentScreen API"
-    app_version: str = "0.4.0"
+    app_version: str = "0.5.0"
     llm_model: str = ""
     environment: str = "development"
     seed_user_email: str = "seed@talentscreen.local"
@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     demo_admin_password: str | None = Field(default=None, repr=False)
     demo_recruiter_email: str | None = None
     demo_recruiter_password: str | None = Field(default=None, repr=False)
+    upload_dir: str = "storage/uploads"
+    max_upload_size_mb: int = 10
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

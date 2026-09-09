@@ -26,6 +26,14 @@ V0.4 enforcement:
 - Passwords, password hashes, tokens, authorization headers, and API keys are never logged.
 - Users cannot self-assign admin privileges; admin access is controlled server-side.
 
+V0.5 ingestion enforcement:
+
+- Only parseable PDF and DOCX files are accepted, with extension, MIME, and structure validation.
+- Uploads are size-limited, stored under generated UUID filenames, and never use the original filename as a path.
+- Uploaded files are untrusted content and are never executed.
+- Recruiter access to applications, documents, and chunks always traverses the owning job.
+- Uploaded files are ignored by Git and filesystem paths are not returned through the API.
+
 V0.3 uses a bearer token in browser `localStorage` because the current frontend/backend run as separate local origins. This is a documented hackathon trade-off: XSS protection should be strengthened with an HttpOnly cookie/BFF architecture before production deployment. No candidate data is stored in browser storage.
 
 The authorization chain is:

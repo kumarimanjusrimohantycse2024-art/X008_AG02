@@ -64,6 +64,19 @@ button, a { font: inherit; }
 .job-card p { color: var(--muted); font: 13px Arial, sans-serif; margin: 0; }
 .job-status { color: var(--moss); font: 700 10px Arial, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
 .job-meta { display: flex; gap: 16px; border-top: 1px solid var(--line); margin-top: 30px; padding-top: 13px; color: var(--muted); font: 11px Arial, sans-serif; }
+.application-list { display: grid; gap: 12px; }
+.application-card { display: flex; justify-content: space-between; gap: 24px; align-items: center; border: 1px solid var(--line); background: white; color: var(--ink); padding: 20px 22px; text-decoration: none; }
+.application-card:hover { border-color: var(--moss); }
+.application-card h2 { margin: 10px 0 5px; font-size: 23px; font-weight: 500; }
+.application-card p, .document-row p { margin: 0; color: var(--muted); font: 13px Arial, sans-serif; }
+.application-meta { display: flex; gap: 14px; color: var(--muted); font: 11px Arial, sans-serif; white-space: nowrap; }
+.field-hint { color: var(--muted); font-weight: 400; }
+.document-row { display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); padding: 16px 0; font: 13px Arial, sans-serif; }
+.document-row > span { color: var(--moss); white-space: nowrap; }
+.chunk-list { margin-top: 28px; }
+.chunk-card { border: 1px solid var(--line); background: white; padding: 16px 18px; margin-top: 10px; }
+.chunk-card header { display: flex; justify-content: space-between; gap: 16px; color: var(--moss); font: 700 11px Arial, sans-serif; letter-spacing: .05em; text-transform: uppercase; }
+.chunk-card p { white-space: pre-wrap; color: var(--muted); font: 14px/1.55 Arial, sans-serif; margin: 13px 0 0; }
 .empty-state, .detail-panel { border-top: 3px solid var(--moss); background: white; padding: 26px; }
 .empty-state h2 { font-size: 26px; font-weight: 500; margin: 0 0 8px; }
 .empty-state p { color: var(--muted); font: 14px Arial, sans-serif; margin: 0 0 22px; }

@@ -16,6 +16,7 @@ from app.models.entities import (
     EvidenceStrength,
     EvidenceType,
     GapLevel,
+    IngestionStatus,
     Job,
     JobStatus,
     LinkRelationship,
@@ -31,6 +32,6 @@ from app.models.entities import (
 __all__ = [
     "Application", "ApplicationStatus", "Assessment", "AssessmentStatus", "Candidate", "CandidateAssessment",
     "CandidateRanking", "Claim", "ClaimRequirementLink", "ClaimType", "Document", "DocumentChunk", "DocumentType",
-    "Evidence", "EvidenceStrength", "EvidenceType", "GapLevel", "Job", "JobStatus", "LinkRelationship", "PoolGap",
+    "Evidence", "EvidenceStrength", "EvidenceType", "GapLevel", "IngestionStatus", "Job", "JobStatus", "LinkRelationship", "PoolGap",
     "Recommendation", "Requirement", "RequirementPriority", "ScreeningStatus", "User", "UserRole",
 ]

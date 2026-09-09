@@ -26,6 +26,16 @@ Recruiter -> Job draft -> Requirement extractor -> Pydantic validation
 
 The extractor handles job requirements only. It does not read candidate documents, assess claims, rank candidates, or make hiring decisions.
 
+## V0.5 ingestion workflow
+
+```text
+Authorized job -> Candidate/Application -> Validated upload
+              -> UUID local storage -> PDF/DOCX parser -> normalized text
+              -> deterministic chunks with source metadata
+```
+
+Files are stored outside PostgreSQL under `storage/uploads/{application_id}/` with generated UUID filenames. PostgreSQL stores metadata, extracted text, SHA-256, and chunks. PDF pages are preserved; DOCX page numbers remain null because they are not reliable through `python-docx`. No LLM, embeddings, OCR, or semantic search is involved.
+
 ## Future evidence-aware pipeline
 
 ```text
