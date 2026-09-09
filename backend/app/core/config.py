@@ -6,8 +6,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_name: str = "TalentScreen API"
-    app_version: str = "0.1.0"
+    app_version: str = "0.2.0"
+    seed_user_email: str = "seed@talentscreen.local"
+    seed_password_hash: str | None = Field(default=None, repr=False)
     database_url: str = "postgresql+psycopg://talentscreen:talentscreen@localhost:5434/talentscreen"
+    embedding_dimension: int = 1536
     jwt_secret: str = Field(default="development-only-change-me", repr=False)
     llm_api_key: str | None = Field(default=None, repr=False)
     embedding_api_key: str | None = Field(default=None, repr=False)

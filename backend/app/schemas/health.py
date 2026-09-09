@@ -11,3 +11,7 @@ class DatabaseHealthResponse(BaseModel):
     status: str
     service: str
     database: str
+
+
+class HealthV2Response(HealthResponse):
+    database: str

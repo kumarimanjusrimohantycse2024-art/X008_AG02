@@ -1,12 +1,12 @@
 # TalentScreen
 
-TalentScreen is an evidence-aware talent-acquisition screening foundation. This repository is **V0.1: Foundation only**. It establishes the frontend, backend, database boundary, startup flow, contracts, and checks that future screening features can build on.
+TalentScreen is an evidence-aware talent-acquisition screening foundation. This repository is **V0.2: Database & Data Layer**. V0.1 established the frontend, backend, database boundary, startup flow, contracts, and checks; V0.2 adds the persistent domain model and migration layer without implementing AI screening or authentication.
 
 ## Architecture
 
 - Frontend: Next.js, React, TypeScript, Tailwind CSS
 - Backend: FastAPI, Pydantic, Uvicorn
-- Database: PostgreSQL with a pgvector-ready image
+- Database: PostgreSQL with pgvector, SQLAlchemy 2.x, and Alembic
 - Security: environment-driven, JWT-ready boundaries; authentication is not implemented in V0.1
 
 ## Prerequisites
@@ -33,7 +33,7 @@ npm install
 Pop-Location
 ```
 
-## PostgreSQL
+## PostgreSQL and migrations
 
 Start the local database:
 
@@ -41,7 +41,13 @@ Start the local database:
 docker compose up -d postgres
 ```
 
-The backend reports database availability at `/api/health/database`; it does not fake a successful connection. This project publishes PostgreSQL on host port `5434` to avoid colliding with other local PostgreSQL services.
+This project publishes PostgreSQL on host port `5434` to avoid colliding with other local PostgreSQL services. Apply the V0.2 schema with:
+
+```powershell
+python -m alembic upgrade head
+```
+
+The backend reports database availability at `/api/health/database`; it does not fake a successful connection. See [docs/DATABASE.md](docs/DATABASE.md) for entities, migrations, seeds, and test strategy.
 
 ## Development startup
 
@@ -57,6 +63,13 @@ Demo mode is recognized but only sets the environment flag in V0.1:
 
 ```powershell
 python start.py --demo
+```
+
+Seed minimal development records with an already-hashed value:
+
+```powershell
+$env:SEED_PASSWORD_HASH = "<already-hashed-development-value>"
+python -m app.db.seed
 ```
 
 For separate terminals:
@@ -93,9 +106,10 @@ start_talentscreen.bat  Windows launcher
 docker-compose.yml       PostgreSQL + pgvector-ready development database
 ```
 
-## Planned versions
+## Current and planned versions
 
-- V0.2: domain models, requisitions, applications, and deterministic service boundaries
+- V0.2: persistent entities, UUIDs, constraints, relationships, migrations, seed infrastructure, and database tests
+
 - V0.3: authentication, authorization, and resource ownership
 - Later: document processing, claim extraction, terminology resolution, evidence verification, ranking, and pool-gap analysis
 

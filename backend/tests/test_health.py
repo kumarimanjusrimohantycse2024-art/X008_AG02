@@ -14,8 +14,7 @@ def test_root_endpoint() -> None:
 def test_health_endpoint() -> None:
     response = client.get("/api/health")
     assert response.status_code == 200
-    assert response.json() == {
-        "status": "ok",
-        "service": "TalentScreen API",
-        "version": "0.1.0",
-    }
+    assert response.json()["status"] == "ok"
+    assert response.json()["service"] == "TalentScreen API"
+    assert response.json()["version"] == "0.2.0"
+    assert response.json()["database"] == "connected"

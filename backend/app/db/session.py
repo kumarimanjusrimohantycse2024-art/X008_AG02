@@ -1,7 +1,8 @@
 from collections.abc import Generator
 
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Connection, Engine
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import get_settings
 
@@ -15,6 +16,9 @@ def get_engine() -> Engine:
     return create_database_engine()
 
 
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=get_engine())
+
+
 def check_database_connection() -> bool:
     try:
         with get_engine().connect() as connection:
@@ -24,7 +28,13 @@ def check_database_connection() -> bool:
         return False
 
 
-def get_db() -> Generator:
-    engine = get_engine()
-    with engine.connect() as connection:
-        yield connection
+def get_db() -> Generator[Session, None, None]:
+    session = SessionLocal()
+    try:
+        yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()

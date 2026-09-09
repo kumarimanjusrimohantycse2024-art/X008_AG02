@@ -2,15 +2,21 @@ from fastapi import APIRouter
 
 from app.core.config import get_settings
 from app.db.session import check_database_connection
-from app.schemas.health import DatabaseHealthResponse, HealthResponse
+from app.schemas.health import DatabaseHealthResponse, HealthResponse, HealthV2Response
 
 router = APIRouter(prefix="/api", tags=["system"])
 
 
-@router.get("/health", response_model=HealthResponse)
-def health() -> HealthResponse:
+@router.get("/health", response_model=HealthV2Response)
+def health() -> HealthV2Response:
     settings = get_settings()
-    return HealthResponse(status="ok", service=settings.app_name, version=settings.app_version)
+    connected = check_database_connection()
+    return HealthV2Response(
+        status="ok" if connected else "degraded",
+        service=settings.app_name,
+        version=settings.app_version,
+        database="connected" if connected else "unavailable",
+    )
 
 
 @router.get("/health/database", response_model=DatabaseHealthResponse)
