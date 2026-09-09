@@ -10,6 +10,13 @@ V0.3 implementation and future requirements:
 - Resist prompt injection and treat candidate text as untrusted.
 - Isolate evidence at the application boundary.
 - Never commit secrets, API keys, tokens, or passwords.
+
+V0.4 enforcement:
+
+- Job descriptions are untrusted text and are never treated as model instructions.
+- Recruiters may access or modify only jobs they own through `jobs.created_by`.
+- Requirement and future child-resource access must authorize through the parent job.
+- AI requirement output is validated before it can be saved; unavailable analysis never fabricates data.
 - Passwords are stored only as PBKDF2-HMAC-SHA256 hashes; plaintext passwords are never persisted.
 - JWT secrets come from `JWT_SECRET`, and access tokens expire.
 - Frontend route checks and role-based UI are UX only; backend authorization is mandatory.

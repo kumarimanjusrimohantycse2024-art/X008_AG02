@@ -47,7 +47,7 @@ export default function LoginPage() {
           <button className="login-button" type="submit" disabled={isSubmitting}>{isSubmitting ? "Signing in..." : "Sign in"}</button>
         </form>
       </section>
-      <aside className="login-aside"><span className="pill">TalentScreen V0.3</span><p>Make candidate signals clearer. Keep the evidence trail visible.</p></aside>
+      <aside className="login-aside"><span className="pill">TalentScreen V0.4</span><p>Make candidate signals clearer. Keep the evidence trail visible.</p></aside>
     </main>
   );
 }

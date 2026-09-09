@@ -1,6 +1,6 @@
 # API Contract
 
-V0.3 endpoints:
+V0.4 endpoints:
 
 - `GET /` returns API identification and readiness.
 - `GET /api/health` returns `{ status, service, version, database }`, preserving the V0.1 fields and adding real database status.
@@ -12,8 +12,11 @@ V0.3 endpoints:
 - `POST /api/jobs` requires `ADMIN` or `RECRUITER`; created jobs are owned by the authenticated user.
 - `GET /api/jobs/{job_id}` requires `ADMIN` or the owning `RECRUITER`; another recruiter's job returns `404` to avoid resource enumeration.
 - `GET /api/jobs` lists all jobs for admins and only owned jobs for recruiters.
+- `PATCH /api/jobs/{job_id}` updates title, department, or description for an authorized job. Invalid lifecycle transitions return `422`.
+- `POST /api/jobs/{job_id}/requirements/analyze` returns validated draft requirements and does not persist them.
+- `PUT /api/jobs/{job_id}/requirements` replaces finalized requirements for an authorized job and marks it `READY`.
 
-The V0.3 API adds only authentication, authorization verification, and minimal job ownership endpoints. Candidate ingestion, document processing, and AI screening endpoints remain intentionally absent.
+Requirement analysis validates structured output before returning it; raw model output is never written to PostgreSQL. The V0.4 API adds job and requirement management. Candidate ingestion, document processing, and candidate evaluation endpoints remain intentionally absent.
 
 Authentication failures return `401` with a generic message. Authenticated users lacking a required role receive `403`. The frontend is not a security boundary.
 

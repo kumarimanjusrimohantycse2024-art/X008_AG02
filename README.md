@@ -1,6 +1,6 @@
 # TalentScreen
 
-TalentScreen is an evidence-aware talent-acquisition screening foundation. This repository is **V0.3: Authentication & RBAC**. V0.1 established the foundation, V0.2 added the persistent domain model, and V0.3 adds secure login, expiring JWTs, roles, and server-side ownership checks without implementing AI screening or candidate ingestion.
+TalentScreen is an evidence-aware talent-acquisition screening foundation. This repository is **V0.4: Job & Requirement Management**. V0.1 established the foundation, V0.2 added the persistent domain model, V0.3 added secure authentication/RBAC, and V0.4 adds recruiter-owned job and requirement workflows without implementing candidate screening.
 
 ## Architecture
 
@@ -8,6 +8,7 @@ TalentScreen is an evidence-aware talent-acquisition screening foundation. This 
 - Backend: FastAPI, Pydantic, Uvicorn
 - Database: PostgreSQL with pgvector, SQLAlchemy 2.x, and Alembic
 - Security: PBKDF2 password hashing, expiring JWT bearer tokens, ADMIN/RECRUITER roles, and server-side ownership checks
+- Product workflow: recruiter-owned job drafts, validated requirement analysis, editable review, and READY lifecycle transition
 
 ## Prerequisites
 
@@ -93,6 +94,7 @@ Pop-Location
 - API health: http://localhost:8000/api/health
 - Database health: http://localhost:8000/api/health/database
 - Login: http://localhost:3000/login
+- Jobs: http://localhost:3000/jobs
 
 The frontend status indicator calls the backend health endpoint and displays checking, connected, or unavailable. Configure a different backend with `NEXT_PUBLIC_BACKEND_URL` when needed.
 
@@ -115,6 +117,7 @@ docker-compose.yml       PostgreSQL + pgvector-ready development database
 - V0.3: secure login, password hashing, expiring JWTs, role authorization, job ownership, and authenticated frontend state
 
 - V0.3: authentication, authorization, and resource ownership
+- V0.4: job creation, requirement extraction/review, finalized requirements, and job lifecycle
 - Later: document processing, claim extraction, terminology resolution, evidence verification, ranking, and pool-gap analysis
 
 Candidate upload, parsing, embeddings, LLM screening, ranking, Redis, Kafka, Kubernetes, and production deployment are intentionally out of scope for V0.1.
