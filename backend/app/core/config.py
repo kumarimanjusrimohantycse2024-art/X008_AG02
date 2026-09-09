@@ -6,8 +6,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_name: str = "TalentScreen API"
-    app_version: str = "0.5.0"
+    app_version: str = "0.6.0"
+    llm_provider: str = "local"
     llm_model: str = ""
+    embedding_model: str = "local-mini"
     environment: str = "development"
     seed_user_email: str = "seed@talentscreen.local"
     seed_password_hash: str | None = Field(default=None, repr=False)

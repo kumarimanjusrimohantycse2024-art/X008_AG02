@@ -16,5 +16,5 @@ def test_health_endpoint() -> None:
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
     assert response.json()["service"] == "TalentScreen API"
-    assert response.json()["version"] == "0.5.0"
+    assert response.json()["version"] == "0.6.0"
     assert response.json()["database"] == "connected"

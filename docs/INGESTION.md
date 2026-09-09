@@ -29,4 +29,4 @@ The application is marked `PROCESSING`, then `COMPLETED` only after every docume
 
 ## Scope boundary
 
-V0.5 does not implement LLM calls, OCR, embeddings, claims, evidence verification, ranking, scoring, semantic search, or pool-gap analysis. AI evidence intelligence begins in V0.6.
+V0.5 ingestion does not implement LLM calls, OCR, embeddings, claims, evidence verification, ranking, scoring, semantic search, or pool-gap analysis. V0.6 adds application-scoped claim extraction, terminology resolution, mock embedding generation, and source-linked evidence analysis on top of this stored source material. Ranking, recommendations, and pool-gap analysis remain out of scope.

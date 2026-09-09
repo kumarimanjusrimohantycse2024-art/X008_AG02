@@ -10,9 +10,15 @@ from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_authorized_application, get_authorized_job, require_recruiter
 from app.db.session import get_db
-from app.models import Application, ApplicationStatus, Candidate, Document, DocumentChunk, DocumentType, IngestionStatus, ScreeningStatus, User
+from app.models import Application, ApplicationStatus, Candidate, Claim, Document, DocumentChunk, DocumentType, IngestionStatus, ScreeningStatus, User
 from app.schemas.applications import ApplicationDetailResponse, ApplicationResponse, ChunkResponse, DocumentResponse
 from app.services.application_ingestion import IngestionError, ingest_application_documents
+from app.services.evidence_intelligence import (
+    EvidenceProcessingError,
+    analyze_application_evidence,
+    extract_claims_for_application,
+    generate_embeddings_for_application,
+)
 
 logger = logging.getLogger("talentscreen.applications")
 router = APIRouter(prefix="/api", tags=["applications"])
@@ -105,3 +111,60 @@ def list_chunks(application_id: UUID, current_user: User = Depends(require_recru
     application = get_authorized_application(application_id, current_user, session)
     chunks = session.scalars(select(DocumentChunk).join(Document).where(Document.application_id == application.id).order_by(DocumentChunk.document_id, DocumentChunk.chunk_index)).all()
     return [ChunkResponse.model_validate(chunk) for chunk in chunks]
+
+
+@router.post("/applications/{application_id}/extract-claims")
+def extract_claims(application_id: UUID, current_user: User = Depends(require_recruiter), session: Session = Depends(get_db)) -> list[dict[str, object]]:
+    application = get_authorized_application(application_id, current_user, session)
+    try:
+        claims = extract_claims_for_application(session, application.id)
+    except EvidenceProcessingError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return [{
+        "id": str(claim.id),
+        "application_id": str(claim.application_id),
+        "text": claim.text,
+        "claim_type": claim.claim_type.value,
+        "source_chunk_id": str(claim.source_chunk_id) if claim.source_chunk_id else None,
+    } for claim in claims]
+
+
+@router.post("/applications/{application_id}/generate-embeddings")
+def generate_embeddings(application_id: UUID, current_user: User = Depends(require_recruiter), session: Session = Depends(get_db)) -> list[dict[str, object]]:
+    application = get_authorized_application(application_id, current_user, session)
+    try:
+        chunks = generate_embeddings_for_application(session, application.id)
+    except EvidenceProcessingError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return [{
+        "id": str(chunk.id),
+        "document_id": str(chunk.document_id),
+        "chunk_index": chunk.chunk_index,
+        "section": chunk.section,
+        "text": chunk.text,
+        "page_number": chunk.page_number,
+        "embedding_length": len(chunk.embedding) if chunk.embedding else 0,
+    } for chunk in chunks]
+
+
+@router.post("/applications/{application_id}/analyze-evidence")
+def analyze_evidence(application_id: UUID, current_user: User = Depends(require_recruiter), session: Session = Depends(get_db)) -> list[dict[str, object]]:
+    application = get_authorized_application(application_id, current_user, session)
+    try:
+        results = analyze_application_evidence(session, application.id)
+    except EvidenceProcessingError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return results
+
+
+@router.get("/applications/{application_id}/claims")
+def list_claims(application_id: UUID, current_user: User = Depends(require_recruiter), session: Session = Depends(get_db)) -> list[dict[str, object]]:
+    get_authorized_application(application_id, current_user, session)
+    claims = session.scalars(select(Claim).where(Claim.application_id == application_id).order_by(Claim.created_at.desc())).all()
+    return [{
+        "id": str(claim.id),
+        "application_id": str(claim.application_id),
+        "text": claim.text,
+        "claim_type": claim.claim_type.value,
+        "source_chunk_id": str(claim.source_chunk_id) if claim.source_chunk_id else None,
+    } for claim in claims]

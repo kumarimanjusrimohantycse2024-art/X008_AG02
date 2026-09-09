@@ -22,6 +22,8 @@ export type RequirementAnalysis = { requirements: Requirement[]; source: string 
 export type Application = { id: string; job_id: string; candidate_id: string; candidate_name: string; candidate_email: string | null; candidate_phone: string | null; status: string; ingestion_status: string; screening_status: string; submitted_at: string | null; created_at: string; document_count: number; chunk_count: number };
 export type Document = { id: string; document_type: "RESUME" | "COVER_LETTER" | "OTHER"; file_name: string; mime_type: string; file_size: number; sha256: string; raw_text: string | null; created_at: string; chunk_count: number };
 export type Chunk = { id: string; document_id: string; chunk_index: number; section: string | null; text: string; page_number: number | null; created_at: string };
+export type Claim = { id: string; application_id: string; text: string; claim_type: string; source_chunk_id: string | null };
+export type EvidenceAssessment = { application_id: string; requirement_id: string; status: "MET" | "PARTIALLY_MET" | "UNSUPPORTED" | "NOT_FOUND"; evidence_strength: "STRONG" | "MODERATE" | "WEAK" | "NONE"; confidence: number; claim_summary: string; evidence_summary: string; reasoning: string; evidence_refs: string[] };
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
@@ -104,4 +106,16 @@ export async function getApplication(token: string, applicationId: string): Prom
 
 export async function getApplicationChunks(token: string, applicationId: string): Promise<Chunk[]> {
   return parseResponse<Chunk[]>(await authenticatedFetch(`/api/applications/${applicationId}/chunks`, token));
+}
+
+export async function getApplicationClaims(token: string, applicationId: string): Promise<Claim[]> {
+  return parseResponse<Claim[]>(await authenticatedFetch(`/api/applications/${applicationId}/claims`, token));
+}
+
+export async function extractApplicationClaims(token: string, applicationId: string): Promise<Claim[]> {
+  return parseResponse<Claim[]>(await authenticatedFetch(`/api/applications/${applicationId}/extract-claims`, token, { method: "POST" }));
+}
+
+export async function analyzeApplicationEvidence(token: string, applicationId: string): Promise<EvidenceAssessment[]> {
+  return parseResponse<EvidenceAssessment[]>(await authenticatedFetch(`/api/applications/${applicationId}/analyze-evidence`, token, { method: "POST" }));
 }

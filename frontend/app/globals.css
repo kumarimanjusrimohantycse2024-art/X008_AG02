@@ -88,10 +88,21 @@ button, a { font: inherit; }
 .job-form input:focus, .job-form textarea:focus, .requirement-editor input:focus, .requirement-editor textarea:focus { border-color: var(--moss); box-shadow: 0 0 0 3px rgba(47,98,84,.14); }
 .form-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 22px; }
 .detail-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; padding: 56px 0 38px; border-bottom: 1px solid var(--line); }
+.detail-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
 .detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; padding-top: 26px; }
 .description-text { white-space: pre-wrap; color: var(--muted); font: 15px/1.6 Arial, sans-serif; }
 .count-row { display: flex; align-items: baseline; gap: 12px; border-bottom: 1px solid var(--line); padding: 18px 0; font: 13px Arial, sans-serif; }
 .count-row strong { color: var(--moss); font: 42px Georgia, serif; }
+.evidence-section { margin-top: 34px; }
+.assessment-list, .claim-list { display: grid; gap: 10px; }
+.assessment-card, .claim-card { border: 1px solid var(--line); background: white; padding: 16px 18px; }
+.assessment-card header, .claim-card { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
+.assessment-card header strong { color: var(--moss); font: 700 12px Arial, sans-serif; letter-spacing: .08em; }
+.assessment-card header span, .assessment-card small, .claim-source { color: var(--muted); font: 12px/1.45 Arial, sans-serif; }
+.assessment-card p, .claim-card p { color: var(--ink); font: 14px/1.5 Arial, sans-serif; margin: 11px 0 5px; }
+.claim-card > div { min-width: 0; }
+.claim-card .eyebrow { font-size: 10px; }
+.claim-source { white-space: nowrap; color: var(--moss); }
 .review-page .page-heading { align-items: start; }
 .requirement-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
 .requirement-section { min-width: 0; }

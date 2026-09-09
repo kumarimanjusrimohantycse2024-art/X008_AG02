@@ -10,6 +10,7 @@ from app.api.auth import router as auth_router
 from app.api.health import router as health_router
 from app.api.jobs import router as jobs_router
 from app.core.config import get_settings
+from app.services.evidence_intelligence import register_ai_settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 logger = logging.getLogger("talentscreen")
