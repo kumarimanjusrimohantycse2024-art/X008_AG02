@@ -48,14 +48,14 @@ The backend database health check is available at `/api/health/database` and rep
 
 ## Seed data
 
-The seed command creates one development user, one sample job, and two requirements. It requires an externally supplied password hash and never accepts a plaintext password:
+The seed command creates one development user, one sample job, and two requirements. It accepts an externally supplied password hash for the legacy seed user, or hashes optional raw demo password environment values immediately:
 
 ```powershell
 $env:SEED_PASSWORD_HASH = "<already-hashed-development-value>"
 python -m app.db.seed
 ```
 
-Seed values are idempotent for the configured seed email/job.
+Optional V0.3 demo users use `DEMO_ADMIN_EMAIL`, `DEMO_ADMIN_PASSWORD`, `DEMO_RECRUITER_EMAIL`, and `DEMO_RECRUITER_PASSWORD`. Never commit those values. Seed values are idempotent for the configured emails/job.
 
 ## Tests
 

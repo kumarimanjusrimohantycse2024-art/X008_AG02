@@ -1,4 +1,6 @@
-export function Sidebar() {
+import type { AuthUser } from "@/lib/api";
+
+export function Sidebar({ user, onLogout }: { user: AuthUser; onLogout: () => void }) {
   return (
     <aside className="sidebar">
       <div className="brand"><span className="brand-mark">T</span><span>TalentScreen</span></div>
@@ -7,7 +9,8 @@ export function Sidebar() {
         <span className="nav-item">Applications</span>
         <span className="nav-item">Requirements</span>
       </nav>
-      <p className="sidebar-note">Evidence-aware screening foundation<br />Version 0.1 · Local workspace</p>
+      <div className="sidebar-account"><strong>{user.name}</strong><span>{user.role}</span><button type="button" onClick={onLogout}>Sign out</button></div>
+      <p className="sidebar-note">Evidence-aware screening workspace<br />Version 0.3 · Local workspace</p>
     </aside>
   );
 }

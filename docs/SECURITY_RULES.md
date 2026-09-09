@@ -1,6 +1,6 @@
 # Security Rules
 
-Future implementation requirements:
+V0.3 implementation and future requirements:
 
 - Hash passwords; never store plaintext passwords.
 - Use JWT-based authentication with safe secret configuration.
@@ -10,5 +10,21 @@ Future implementation requirements:
 - Resist prompt injection and treat candidate text as untrusted.
 - Isolate evidence at the application boundary.
 - Never commit secrets, API keys, tokens, or passwords.
+- Passwords are stored only as PBKDF2-HMAC-SHA256 hashes; plaintext passwords are never persisted.
+- JWT secrets come from `JWT_SECRET`, and access tokens expire.
+- Frontend route checks and role-based UI are UX only; backend authorization is mandatory.
+- Recruiters can access only jobs where `jobs.created_by` equals their authenticated user ID.
+- Child resources must be authorized through their parent job/application ownership chain.
+- Candidate documents and application text are untrusted data.
+- Passwords, password hashes, tokens, authorization headers, and API keys are never logged.
+- Users cannot self-assign admin privileges; admin access is controlled server-side.
 
-Authentication and full RBAC are intentionally not implemented in V0.1.
+V0.3 uses a bearer token in browser `localStorage` because the current frontend/backend run as separate local origins. This is a documented hackathon trade-off: XSS protection should be strengthened with an HttpOnly cookie/BFF architecture before production deployment. No candidate data is stored in browser storage.
+
+The authorization chain is:
+
+```text
+User -> Job.created_by -> Application.job_id -> Candidate/Documents/Claims/Evidence/Assessments
+```
+
+Authentication and full RBAC are implemented in V0.3; candidate/document ingestion and AI workflows remain deferred.

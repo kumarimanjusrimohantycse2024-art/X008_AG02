@@ -1,4 +1,10 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 import { BackendStatus } from "@/components/BackendStatus";
+import { useAuth } from "@/components/AuthProvider";
 import { Sidebar } from "@/components/Sidebar";
 
 const foundationAreas = [
@@ -8,16 +14,25 @@ const foundationAreas = [
 ];
 
 export default function Home() {
+  const router = useRouter();
+  const { user, isLoading, logout } = useAuth();
+
+  useEffect(() => {
+    if (!isLoading && !user) router.replace("/login");
+  }, [isLoading, router, user]);
+
+  if (isLoading || !user) return <main className="auth-loading">Loading workspace...</main>;
+
   return (
     <div className="dashboard-shell">
-      <Sidebar />
+      <Sidebar user={user} onLogout={() => { logout(); router.replace("/login"); }} />
       <main className="main">
         <header className="topbar">
           <div><div className="eyebrow">Workspace overview</div><h2 className="topbar-title">System foundation</h2></div>
           <BackendStatus />
         </header>
         <section className="hero">
-          <span className="pill">Foundation V0.1</span>
+          <span className="pill">Authenticated workspace V0.3</span>
           <h1>TalentScreen</h1>
           <p>Evidence-aware talent screening, designed to make candidate signals clearer and decisions more accountable.</p>
         </section>
