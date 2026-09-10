@@ -1,6 +1,6 @@
 # TalentScreen
 
-TalentScreen is an evidence-aware talent-acquisition screening foundation. This repository is **V0.5: Application Ingestion & Source Processing**. V0.1 established the foundation, V0.2 added the persistent domain model, V0.3 added secure authentication/RBAC, V0.4 added job/requirement workflows, and V0.5 adds recruiter-owned application ingestion without implementing AI evidence intelligence.
+TalentScreen is an evidence-aware talent-acquisition screening foundation. This repository is **V0.7: Candidate Assessment**. V0.1 established the foundation, V0.2 added the persistent domain model, V0.3 added secure authentication/RBAC, V0.4 added job/requirement workflows, V0.5 added recruiter-owned application ingestion, V0.6 added source-linked evidence intelligence, and V0.7 adds deterministic candidate-level assessment without ranking candidates.
 
 ## Architecture
 
@@ -9,7 +9,7 @@ TalentScreen is an evidence-aware talent-acquisition screening foundation. This 
 - Database: PostgreSQL with pgvector, SQLAlchemy 2.x, and Alembic
 - Security: PBKDF2 password hashing, expiring JWT bearer tokens, ADMIN/RECRUITER roles, and server-side ownership checks
 - Product workflow: recruiter-owned job drafts, validated requirement analysis, editable review, and READY lifecycle transition
-- Application workflow: PDF/DOCX upload, deterministic parsing, source-aware chunks, and application ownership checks
+- Application workflow: PDF/DOCX upload, deterministic parsing, source-aware chunks, application ownership checks, evidence analysis, and candidate assessment
 
 ## Prerequisites
 
@@ -45,7 +45,7 @@ Start the local database:
 docker compose up -d postgres
 ```
 
-This project publishes PostgreSQL on host port `5434` to avoid colliding with other local PostgreSQL services. Apply the V0.2 schema with:
+This project publishes PostgreSQL on host port `5434` to avoid colliding with other local PostgreSQL services. Apply the current schema, including the V0.7 candidate-assessment migration, with:
 
 ```powershell
 python -m alembic upgrade head
@@ -121,6 +121,8 @@ docker-compose.yml       PostgreSQL + pgvector-ready development database
 - V0.3: authentication, authorization, and resource ownership
 - V0.4: job creation, requirement extraction/review, finalized requirements, and job lifecycle
 - V0.5: candidate/application ingestion, PDF/DOCX parsing, deterministic chunks, and source traceability
-- Later: document processing, claim extraction, terminology resolution, evidence verification, ranking, and pool-gap analysis
+- V0.6: application-scoped claim extraction, terminology resolution, evidence verification, and source-linked assessment
+- V0.7: deterministic required/preferred coverage, evidence-quality aggregation, strengths, weaknesses, trade-offs, and recommendation categories
+- V0.8+: candidate ranking, shortlists, comparisons, and pool-gap analysis
 
-Candidate upload, parsing, embeddings, LLM screening, ranking, Redis, Kafka, Kubernetes, and production deployment are intentionally out of scope for V0.1.
+Ranking, shortlists, cross-candidate comparison, pool-gap analysis, Redis, Kafka, Kubernetes, and production deployment remain intentionally out of scope for V0.7.
