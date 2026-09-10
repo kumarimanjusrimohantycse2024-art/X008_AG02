@@ -10,8 +10,9 @@ from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_authorized_application, get_authorized_job, require_recruiter
 from app.db.session import get_db
-from app.models import Application, ApplicationStatus, Candidate, Claim, Document, DocumentChunk, DocumentType, IngestionStatus, ScreeningStatus, User
+from app.models import Application, ApplicationStatus, Assessment, AssessmentStatus, Candidate, CandidateAssessment, Claim, Document, DocumentChunk, DocumentType, EvidenceStrength, IngestionStatus, Requirement, RequirementPriority, ScreeningStatus, User
 from app.schemas.applications import ApplicationDetailResponse, ApplicationResponse, ChunkResponse, DocumentResponse
+from app.schemas.candidate_assessments import CandidateAssessmentResponse
 from app.services.application_ingestion import IngestionError, ingest_application_documents
 from app.services.evidence_intelligence import (
     EvidenceProcessingError,
@@ -19,6 +20,7 @@ from app.services.evidence_intelligence import (
     extract_claims_for_application,
     generate_embeddings_for_application,
 )
+from app.services.candidate_assessment import CandidateAssessmentError, assess_candidate
 
 logger = logging.getLogger("talentscreen.applications")
 router = APIRouter(prefix="/api", tags=["applications"])
@@ -168,3 +170,47 @@ def list_claims(application_id: UUID, current_user: User = Depends(require_recru
         "claim_type": claim.claim_type.value,
         "source_chunk_id": str(claim.source_chunk_id) if claim.source_chunk_id else None,
     } for claim in claims]
+
+
+def serialize_candidate_assessment(assessment: CandidateAssessment, session: Session) -> CandidateAssessmentResponse:
+    application_requirements = session.scalars(select(Requirement).where(Requirement.job_id == assessment.application.job_id).order_by(Requirement.created_at, Requirement.id)).all()
+    assessments = {row.requirement_id: row for row in session.scalars(select(Assessment).where(Assessment.application_id == assessment.application_id)).all()}
+    details = []
+    for requirement in application_requirements:
+        row = assessments.get(requirement.id)
+        details.append({
+            "assessment_id": row.id if row else None,
+            "requirement_id": requirement.id,
+            "name": requirement.name,
+            "priority": requirement.priority,
+            "status": row.status if row else AssessmentStatus.NOT_FOUND,
+            "evidence_strength": row.evidence_strength if row else EvidenceStrength.NONE,
+            "confidence": float(row.confidence) if row else None,
+            "claim_summary": row.claim_summary if row else None,
+            "evidence_summary": row.evidence_summary if row else None,
+            "reasoning": row.reasoning if row else "No verified V0.6 assessment exists for this requirement.",
+            "evidence_refs": list(row.evidence_refs or []) if row else [],
+        })
+    payload = CandidateAssessmentResponse.model_validate(assessment).model_dump()
+    payload["required_requirements"] = [item for item in details if item["priority"] == RequirementPriority.REQUIRED]
+    payload["preferred_requirements"] = [item for item in details if item["priority"] == RequirementPriority.PREFERRED]
+    return CandidateAssessmentResponse.model_validate(payload)
+
+
+@router.post("/applications/{application_id}/assess", response_model=CandidateAssessmentResponse)
+def assess_application(application_id: UUID, current_user: User = Depends(require_recruiter), session: Session = Depends(get_db)) -> CandidateAssessmentResponse:
+    application = get_authorized_application(application_id, current_user, session)
+    try:
+        result = assess_candidate(session, application.id)
+    except CandidateAssessmentError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return serialize_candidate_assessment(result.record, session)
+
+
+@router.get("/applications/{application_id}/assessment", response_model=CandidateAssessmentResponse)
+def get_application_assessment(application_id: UUID, current_user: User = Depends(require_recruiter), session: Session = Depends(get_db)) -> CandidateAssessmentResponse:
+    application = get_authorized_application(application_id, current_user, session)
+    assessment = session.scalar(select(CandidateAssessment).where(CandidateAssessment.application_id == application.id))
+    if assessment is None:
+        raise HTTPException(status_code=404, detail="Candidate assessment not found.")
+    return serialize_candidate_assessment(assessment, session)

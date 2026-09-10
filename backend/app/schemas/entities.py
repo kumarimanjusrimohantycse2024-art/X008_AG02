@@ -220,9 +220,9 @@ class AssessmentRead(TimestampSchema):
 
 class CandidateAssessmentCreate(BaseModel):
     application_id: UUID
-    required_coverage: Decimal = Field(ge=0, le=1)
-    preferred_coverage: Decimal = Field(ge=0, le=1)
-    evidence_quality: Decimal = Field(ge=0, le=1)
+    required_coverage: dict[str, Any] = Field(default_factory=dict)
+    preferred_coverage: dict[str, Any] = Field(default_factory=dict)
+    evidence_quality: dict[str, Any] = Field(default_factory=dict)
     strengths: list[Any] = Field(default_factory=list)
     weaknesses: list[Any] = Field(default_factory=list)
     tradeoffs: list[Any] = Field(default_factory=list)
@@ -231,9 +231,9 @@ class CandidateAssessmentCreate(BaseModel):
 
 class CandidateAssessmentRead(TimestampSchema):
     application_id: UUID
-    required_coverage: Decimal
-    preferred_coverage: Decimal
-    evidence_quality: Decimal
+    required_coverage: dict[str, Any]
+    preferred_coverage: dict[str, Any]
+    evidence_quality: dict[str, Any]
     strengths: list[Any]
     weaknesses: list[Any]
     tradeoffs: list[Any]

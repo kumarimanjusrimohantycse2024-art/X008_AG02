@@ -362,12 +362,15 @@ class Assessment(Base):
     id: Mapped[uuid.UUID] = uuid_column()
     application_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("applications.id", ondelete="CASCADE"), nullable=False)
     requirement_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("requirements.id", ondelete="CASCADE"), nullable=False)
+    claim_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("claims.id", ondelete="SET NULL"))
     status: Mapped[AssessmentStatus] = mapped_column(enum_type(AssessmentStatus), nullable=False)
     evidence_strength: Mapped[EvidenceStrength] = mapped_column(enum_type(EvidenceStrength), nullable=False)
     confidence: Mapped[Decimal] = mapped_column(Numeric(4, 3), nullable=False)
     claim_summary: Mapped[str | None] = mapped_column(Text)
     evidence_summary: Mapped[str | None] = mapped_column(Text)
     reasoning: Mapped[str | None] = mapped_column(Text)
+    claim_ids: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
+    evidence_refs: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     created_at: Mapped[datetime] = timestamps()["created_at"]
     updated_at: Mapped[datetime] = timestamps()["updated_at"]
 
@@ -380,16 +383,13 @@ class CandidateAssessment(Base):
     __table_args__ = (
         UniqueConstraint("application_id", name="uq_candidate_assessments_application"),
         Index("ix_candidate_assessments_application_id", "application_id"),
-        CheckConstraint("required_coverage >= 0 AND required_coverage <= 1", name="ck_candidate_assessments_required_coverage_range"),
-        CheckConstraint("preferred_coverage >= 0 AND preferred_coverage <= 1", name="ck_candidate_assessments_preferred_coverage_range"),
-        CheckConstraint("evidence_quality >= 0 AND evidence_quality <= 1", name="ck_candidate_assessments_evidence_quality_range"),
     )
 
     id: Mapped[uuid.UUID] = uuid_column()
     application_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("applications.id", ondelete="CASCADE"), nullable=False)
-    required_coverage: Mapped[Decimal] = mapped_column(Numeric(4, 3), nullable=False)
-    preferred_coverage: Mapped[Decimal] = mapped_column(Numeric(4, 3), nullable=False)
-    evidence_quality: Mapped[Decimal] = mapped_column(Numeric(4, 3), nullable=False)
+    required_coverage: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
+    preferred_coverage: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
+    evidence_quality: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
     strengths: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     weaknesses: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)
     tradeoffs: Mapped[list[Any]] = mapped_column(JSONB, nullable=False, default=list)

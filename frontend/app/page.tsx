@@ -32,7 +32,7 @@ export default function Home() {
           <BackendStatus />
         </header>
         <section className="hero">
-          <span className="pill">Authenticated workspace V0.3</span>
+          <span className="pill">Authenticated workspace V0.7</span>
           <h1>TalentScreen</h1>
           <p>Evidence-aware talent screening, designed to make candidate signals clearer and decisions more accountable.</p>
         </section>

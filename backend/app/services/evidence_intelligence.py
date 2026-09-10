@@ -237,7 +237,7 @@ def analyze_application_evidence(session: Session, application_id: UUID) -> list
     for requirement in requirements:
         relevant_claims = [claim for claim in claims if any(item[0].id == requirement.id for item in _claim_to_requirements(session, claim))]
         if not relevant_claims:
-            results.append({
+            result = {
                 "application_id": str(application_id),
                 "requirement_id": str(requirement.id),
                 "status": "NOT_FOUND",
@@ -247,13 +247,15 @@ def analyze_application_evidence(session: Session, application_id: UUID) -> list
                 "evidence_summary": "No meaningful evidence found in the same application.",
                 "reasoning": "No claim or evidence was found for this requirement within the application.",
                 "evidence_refs": [],
-            })
+            }
+            _store_verified_assessment(session, application_id, requirement.id, result)
+            results.append(result)
             continue
         claim = relevant_claims[0]
         evidence_chunks = session.scalars(select(DocumentChunk).join(Document).where(Document.application_id == application_id).order_by(DocumentChunk.chunk_index)).all()
         evidence_texts = [chunk.text for chunk in evidence_chunks if requirement.name.lower() in chunk.text.lower() or claim.text.lower() in chunk.text.lower()]
         if not evidence_texts:
-            results.append({
+            result = {
                 "application_id": str(application_id),
                 "requirement_id": str(requirement.id),
                 "status": "UNSUPPORTED",
@@ -263,7 +265,9 @@ def analyze_application_evidence(session: Session, application_id: UUID) -> list
                 "evidence_summary": "No concrete supporting evidence found.",
                 "reasoning": "The application makes a claim, but the supporting evidence is insufficient or missing.",
                 "evidence_refs": [],
-            })
+            }
+            _store_verified_assessment(session, application_id, requirement.id, result, claim_id=claim.id)
+            results.append(result)
             continue
         evidence_ref = evidence_chunks[0].id
         validation = {
@@ -279,7 +283,7 @@ def analyze_application_evidence(session: Session, application_id: UUID) -> list
             "reasoning": "Evidence exists in the same application but does not conclusively establish full requirement coverage.",
         }
         validate_assessment_output(session, **validation)
-        results.append({
+        result = {
             "application_id": str(application_id),
             "requirement_id": str(requirement.id),
             "status": validation["status"],
@@ -289,5 +293,32 @@ def analyze_application_evidence(session: Session, application_id: UUID) -> list
             "evidence_summary": validation["evidence_summary"],
             "reasoning": validation["reasoning"],
             "evidence_refs": [str(ref) for ref in validation["evidence_refs"]],
-        })
+        }
+        _store_verified_assessment(session, application_id, requirement.id, result, claim_id=claim.id)
+        results.append(result)
+    session.flush()
     return results
+
+
+def _store_verified_assessment(
+    session: Session,
+    application_id: UUID,
+    requirement_id: UUID,
+    result: dict[str, object],
+    *,
+    claim_id: UUID | None = None,
+) -> Assessment:
+    assessment = session.scalar(select(Assessment).where(Assessment.application_id == application_id, Assessment.requirement_id == requirement_id))
+    if assessment is None:
+        assessment = Assessment(application_id=application_id, requirement_id=requirement_id)
+        session.add(assessment)
+    assessment.claim_id = claim_id
+    assessment.status = AssessmentStatus(str(result["status"]))
+    assessment.evidence_strength = EvidenceStrength(str(result["evidence_strength"]))
+    assessment.confidence = Decimal(str(result["confidence"]))
+    assessment.claim_summary = str(result["claim_summary"])
+    assessment.evidence_summary = str(result["evidence_summary"])
+    assessment.reasoning = str(result["reasoning"])
+    assessment.claim_ids = [str(claim_id)] if claim_id else []
+    assessment.evidence_refs = list(result.get("evidence_refs", []))
+    return assessment

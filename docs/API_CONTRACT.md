@@ -29,3 +29,10 @@ All application/document/chunk endpoints authorize through the parent job. Unsup
 Authentication failures return `401` with a generic message. Authenticated users lacking a required role receive `403`. The frontend is not a security boundary.
 
 Future endpoints must validate request and response schemas, avoid leaking secrets, and keep security decisions on the backend.
+
+V0.7 adds candidate-level assessment endpoints:
+
+- `POST /api/applications/{application_id}/assess` authorizes the application, consumes persisted V0.6 assessments, deterministically computes required/preferred coverage, evidence quality, and recommendation, then upserts the application assessment.
+- `GET /api/applications/{application_id}/assessment` returns the current candidate assessment and requirement-level traceability, or `404` when it has not been generated.
+
+The candidate assessment is idempotent per application. It exposes evidence-grounded strengths, weaknesses, and trade-offs without ranking candidates, comparing applications, creating shortlists, or performing pool-gap analysis. If no verified V0.6 assessments exist, the POST endpoint returns `422` with `Evidence analysis required before candidate assessment.`

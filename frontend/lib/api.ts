@@ -24,6 +24,10 @@ export type Document = { id: string; document_type: "RESUME" | "COVER_LETTER" | 
 export type Chunk = { id: string; document_id: string; chunk_index: number; section: string | null; text: string; page_number: number | null; created_at: string };
 export type Claim = { id: string; application_id: string; text: string; claim_type: string; source_chunk_id: string | null };
 export type EvidenceAssessment = { application_id: string; requirement_id: string; status: "MET" | "PARTIALLY_MET" | "UNSUPPORTED" | "NOT_FOUND"; evidence_strength: "STRONG" | "MODERATE" | "WEAK" | "NONE"; confidence: number; claim_summary: string; evidence_summary: string; reasoning: string; evidence_refs: string[] };
+export type RequirementAssessment = { assessment_id: string | null; requirement_id: string; name: string; priority: "REQUIRED" | "PREFERRED"; status: "MET" | "PARTIALLY_MET" | "UNSUPPORTED" | "NOT_FOUND"; evidence_strength: "STRONG" | "MODERATE" | "WEAK" | "NONE"; confidence: number | null; claim_summary: string | null; evidence_summary: string | null; reasoning: string | null; evidence_refs: string[] };
+export type CandidateNarrative = { title: string; description: string; requirement_ids: string[]; assessment_ids: string[]; source_refs: string[] };
+export type CandidateTradeoff = { title: string; advantage: string; limitation: string; requirements: string[]; supporting_assessment_ids: string[] };
+export type CandidateAssessment = { id: string; application_id: string; required_coverage: { total: number; met: number; partially_met: number; unsupported: number; not_found: number }; preferred_coverage: { total: number; met: number; partially_met: number; unsupported: number; not_found: number }; evidence_quality: { label: string; strong: number; moderate: number; weak: number; none: number }; strengths: CandidateNarrative[]; weaknesses: CandidateNarrative[]; tradeoffs: CandidateTradeoff[]; recommendation: "STRONG_MATCH" | "GOOD_MATCH" | "MIXED_MATCH" | "WEAK_MATCH"; required_requirements: RequirementAssessment[]; preferred_requirements: RequirementAssessment[]; created_at: string; updated_at: string };
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8000";
 
@@ -118,4 +122,14 @@ export async function extractApplicationClaims(token: string, applicationId: str
 
 export async function analyzeApplicationEvidence(token: string, applicationId: string): Promise<EvidenceAssessment[]> {
   return parseResponse<EvidenceAssessment[]>(await authenticatedFetch(`/api/applications/${applicationId}/analyze-evidence`, token, { method: "POST" }));
+}
+
+export async function getCandidateAssessment(token: string, applicationId: string): Promise<CandidateAssessment | null> {
+  const response = await authenticatedFetch(`/api/applications/${applicationId}/assessment`, token);
+  if (response.status === 404) return null;
+  return parseResponse<CandidateAssessment>(response);
+}
+
+export async function assessCandidate(token: string, applicationId: string): Promise<CandidateAssessment> {
+  return parseResponse<CandidateAssessment>(await authenticatedFetch(`/api/applications/${applicationId}/assess`, token, { method: "POST" }));
 }
